@@ -1,0 +1,262 @@
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive 3D Cube</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    
+    .scene {
+      width: 300px;
+      height: 300px;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+      touch-action: none;
+    }
+    
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: translateZ(-150px);
+    }
+    
+    .cube__face {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .cube__face--front {
+      transform: rotateY(0deg) translateZ(150px);
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%234285f4'/%3E%3Ccircle cx='150' cy='150' r='100' fill='%23ea4335'/%3E%3C/svg%3E");
+    }
+    
+    .cube__face--back {
+      transform: rotateY(180deg) translateZ(150px);
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23fbbc05'/%3E%3Cpolygon points='150,50 250,200 50,200' fill='%2334a853'/%3E%3C/svg%3E");
+    }
+    
+    .cube__face--right {
+      transform: rotateY(90deg) translateZ(150px);
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23ea4335'/%3E%3Crect x='50' y='50' width='200' height='200' fill='%23fbbc05'/%3E%3C/svg%3E");
+    }
+    
+    .cube__face--left {
+      transform: rotateY(-90deg) translateZ(150px);
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%2334a853'/%3E%3Ccircle cx='150' cy='150' r='100' fill='%234285f4'/%3E%3Ccircle cx='150' cy='150' r='50' fill='%23ea4335'/%3E%3C/svg%3E");
+    }
+    
+    .cube__face--top {
+      transform: rotateX(90deg) translateZ(150px);
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23fbbc05'/%3E%3Ccircle cx='100' cy='100' r='50' fill='%234285f4'/%3E%3Ccircle cx='200' cy='200' r='50' fill='%2334a853'/%3E%3C/svg%3E");
+    }
+    
+    .cube__face--bottom {
+      transform: rotateX(-90deg) translateZ(150px);
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%234285f4'/%3E%3Crect x='50' y='50' width='200' height='200' fill='white'/%3E%3Crect x='75' y='75' width='150' height='150' fill='%23ea4335'/%3E%3C/svg%3E");
+    }
+    
+    .cube__face span {
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="cube" style="translate: none; rotate: none; scale: none; transform: translate3d(0px, 0px, -150px) rotateY(1492.5deg) rotateX(1635.4deg);">
+      <div class="cube__face cube__face--front"><span>1</span></div>
+      <div class="cube__face cube__face--back"><span>2</span></div>
+      <div class="cube__face cube__face--right"><span>3</span></div>
+      <div class="cube__face cube__face--left"><span>4</span></div>
+      <div class="cube__face cube__face--top"><span>5</span></div>
+      <div class="cube__face cube__face--bottom"><span>6</span></div>
+    </div>
+  </div>
+
+  <script>
+    // Elements
+    const cube = document.querySelector('.cube');
+    const scene = document.querySelector('.scene');
+    
+    // Variables for tracking rotation
+    let rotationX = 0;
+    let rotationY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let isDragging = false;
+    let previousMouseX = 0;
+    let previousMouseY = 0;
+    let autoRotationPaused = false;
+    let velocityX = 0;
+    let velocityY = 0;
+    let lastTime = 0;
+    
+    // Constants for physics
+    const ROTATION_SPEED = 0.3;
+    const INERTIA_FACTOR = 0.95;
+    
+    // Function to normalize rotation angles
+    function normalizeRotation(angle) {
+      return angle % 360;
+    }
+    
+    // Set up GSAP auto rotation
+    const autoRotation = gsap.timeline({ repeat: -1 })
+      .to(cube, {
+        duration: 10,
+        ease: "none",
+        onUpdate: function() {
+          if (!autoRotationPaused) {
+            rotationY += 0.5;
+            rotationX += 0.3;
+            updateCubeRotation();
+          }
+        }
+      });
+    
+    // Function to update cube rotation
+    function updateCubeRotation() {
+      // Normalize rotations to keep them continuous
+      rotationX = normalizeRotation(rotationX);
+      rotationY = normalizeRotation(rotationY);
+      
+      gsap.set(cube, { rotateX: rotationX, rotateY: rotationY });
+    }
+    
+    // Mouse/Touch move event
+    function handleMove(e) {
+      if (!isDragging) return;
+      
+      const currentTime = performance.now();
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
+      
+      let currentX, currentY;
+      
+      if (e.type === "touchmove") {
+        currentX = e.touches[0].clientX;
+        currentY = e.touches[0].clientY;
+      } else {
+        currentX = e.clientX;
+        currentY = e.clientY;
+      }
+      
+      // Calculate the movement delta
+      const deltaX = currentX - previousMouseX;
+      const deltaY = currentY - previousMouseY;
+      
+      // Calculate velocity based on movement and time
+      velocityX = (deltaX * ROTATION_SPEED) / deltaTime;
+      velocityY = (deltaY * ROTATION_SPEED) / deltaTime;
+      
+      // Update rotation based on velocity
+      rotationY += velocityX * deltaTime;
+      rotationX -= velocityY * deltaTime;
+      
+      // Update the cube rotation
+      updateCubeRotation();
+      
+      // Update previous position
+      previousMouseX = currentX;
+      previousMouseY = currentY;
+      
+      e.preventDefault();
+    }
+    
+    // Mouse/Touch up event
+    function handleEnd() {
+      isDragging = false;
+      
+      // Apply inertia
+      function applyInertia() {
+        if (Math.abs(velocityX) > 0.001 || Math.abs(velocityY) > 0.001) {
+          rotationY += velocityX;
+          rotationX -= velocityY;
+          
+          // Apply friction
+          velocityX *= INERTIA_FACTOR;
+          velocityY *= INERTIA_FACTOR;
+          
+          updateCubeRotation();
+          requestAnimationFrame(applyInertia);
+        } else {
+          autoRotationPaused = false;
+        }
+      }
+      
+      requestAnimationFrame(applyInertia);
+    }
+    
+    // Mouse/Touch down event
+    function handleStart(e) {
+      isDragging = true;
+      autoRotationPaused = true;
+      lastTime = performance.now();
+      velocityX = 0;
+      velocityY = 0;
+      
+      // Get the starting position
+      if (e.type === "touchstart") {
+        previousMouseX = e.touches[0].clientX;
+        previousMouseY = e.touches[0].clientY;
+      } else {
+        previousMouseX = e.clientX;
+        previousMouseY = e.clientY;
+      }
+      
+      e.preventDefault();
+    }
+    
+    // Add event listeners for mouse
+    scene.addEventListener('mousedown', handleStart);
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+    
+    // Add event listeners for touch
+    scene.addEventListener('touchstart', handleStart);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchend', handleEnd);
+    
+    // Initial rotation to show the cube at an angle
+    rotationX = 15;
+    rotationY = 45;
+    updateCubeRotation();
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'945e7c71b15e590f',t:'MTc0ODI3NTIzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border: none; visibility: hidden;"></iframe>
+
+</body></html>
