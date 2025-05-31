@@ -1,0 +1,128 @@
+.cube-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+  cursor: grab;
+}
+
+.cube-container:active {
+  cursor: grabbing;
+}
+
+.cube {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
+
+.cube-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.face-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.face-content video,
+.face-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dashboard specific styles */
+.dashboard-cube .cube-face {
+  border-radius: 22px;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.dashboard-cube .face-content {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1.5px solid rgba(255, 120, 180, 0.18);
+  border-radius: 22px;
+  box-shadow: 0 2px 8px 0 #f8bbd022, 0 0 0 1px #f8bbd055;
+}
+
+.dashboard-cube .face-content::before {
+  content: '';
+  position: absolute;
+  left: -30%;
+  top: -30%;
+  width: 160%;
+  height: 160%;
+  background: radial-gradient(circle at 70% 30%, #ff5fa2 0%, rgba(255,255,255,0) 70%),
+              linear-gradient(120deg, rgba(0,191,255,0.13) 0%, rgba(255,95,162,0.13) 100%);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  filter: blur(2px) saturate(1.2);
+}
+
+.cube-face span {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.light-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: all 0.3s ease;
+  background: radial-gradient(circle at center, #00ffff 0%, transparent 70%);
+  filter: blur(8px);
+}
+
+.cube-face video::-webkit-media-controls {
+  display: none !important;
+}
+
+.cube-face video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+.cube-face .custom-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Interactive styles */
+.cube-face--active {
+  box-shadow: 0 0 32px 8px #b388ff, 0 0 8px 2px #00e5ff;
+  z-index: 2;
+} 
