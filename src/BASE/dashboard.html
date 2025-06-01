@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Cube Dashboard</title>
+  <link rel="stylesheet" href="cube.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="cube.js"></script>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #ece9f7 0%, #d1dbe6 100%);
+      font-family: Arial, sans-serif;
+    }
+    .cube-face {
+      border-radius: 22px !important;
+      /* Match face-content radius */
+      box-shadow: 0 2px 8px 0 #f8bbd022, 0 0 0 1px #f8bbd055;
+      /* Softer shadow */
+      overflow: hidden;
+    }
+    .face-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #222;
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 2px 8px 0 #f8bbd022, 0 0 0 1px #f8bbd055;
+      font-family: inherit;
+      font-size: 1.1rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1.5px solid rgba(255,120,180,0.18);
+      transition: background 0.3s, color 0.3s;
+    }
+    .face-content::before {
+      content: '';
+      position: absolute;
+      left: -30%;
+      top: -30%;
+      width: 160%;
+      height: 160%;
+      background: radial-gradient(circle at 70% 30%, #ff5fa2 0%, rgba(255,255,255,0) 70%),
+                  linear-gradient(120deg, rgba(0,191,255,0.13) 0%, rgba(255,95,162,0.13) 100%);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      filter: blur(2px) saturate(1.2);
+    }
+    .dashboard-title {
+      font-size: 1.2rem;
+      color: #ff5fa2;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 8px #fff8, 0 0 6px #ff5fa2cc;
+      font-weight: bold;
+      position: relative;
+      z-index: 1;
+    }
+    .dashboard-clock {
+      font-size: 2rem;
+      letter-spacing: 2px;
+      color: #222;
+      text-shadow: 0 0 8px #fff8, 0 0 4px #00eaffcc;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .dashboard-weather {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .dashboard-weather-icon {
+      font-size: 2.2rem;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 0 8px #ff5fa2cc) drop-shadow(0 0 2px #fff8);
+      position: relative;
+      z-index: 1;
+    }
+    .dashboard-music {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .dashboard-music-btn {
+      background: rgba(255,255,255,0.95);
+      color: #ff5fa2;
+      border: 1.5px solid #ff5fa2;
+      border-radius: 8px;
+      padding: 6px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+      box-shadow: 0 1px 4px #ff5fa222;
+    }
+    .dashboard-music-btn:hover {
+      background: #ff5fa2;
+      color: #fff;
+      border: 1.5px solid #00eaff;
+      box-shadow: 0 0 8px #00eaff88;
+    }
+    .dashboard-chart-bar {
+      width: 80%;
+      height: 16px;
+      background: #f3f3f3;
+      border-radius: 8px;
+      margin: 6px auto;
+      overflow: hidden;
+      box-shadow: 0 0 4px #ff5fa222;
+      position: relative;
+      border: 1px solid #ff5fa2;
+      z-index: 1;
+    }
+    .dashboard-chart-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff5fa2, #00eaff 90%);
+      box-shadow: 0 0 4px #00eaff88;
+      border-radius: 8px;
+      transition: width 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    .dashboard-note {
+      font-size: 1.05rem;
+      color: #ff5fa2;
+      opacity: 0.85;
+      margin-top: 10px;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 0 6px #fff8, 0 0 4px #ff5fa2cc;
+    }
+    a {
+      color: #ff5fa2;
+      text-decoration: none;
+      transition: color 0.2s;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 0 4px #ff5fa2cc;
+    }
+    a:hover {
+      color: #00eaff;
+      text-shadow: 0 0 8px #00eaffcc;
+    }
+  </style>
+</head>
+<body>
+  <div id="cube-container"></div>
+  <script>
+    // --- Cube setup ---
+    const cube = new Cube3D(document.getElementById('cube-container'), {
+      size: 300,
+      autoRotate: true,
+      borderRadius: 22
+    });
+    // --- Dashboard Widgets ---
+    // 1. Clock
+    function getClockHTML() {
+      return `<div class='dashboard-title'>Clock</div><div class='dashboard-clock' id='dashboard-clock'></div>`;
+    }
+    // 2. Weather (static demo)
+    function getWeatherHTML() {
+      return `<div class='dashboard-title'>Weather</div><div class='dashboard-weather-icon'>☁️</div><div class='dashboard-weather'>Cloudy<br>18°C</div>`;
+    }
+    // 3. Music Player (demo)
+    function getMusicHTML() {
+      return `<div class='dashboard-title'>Music</div><div class='dashboard-music'><div>Now Playing:<br><b>Minimal Beat</b></div><button class='dashboard-music-btn' id='music-play-btn'>Play/Pause</button></div>`;
+    }
+    // 4. Chart (random demo)
+    function getChartHTML() {
+      return `<div class='dashboard-title'>Stats</div><div class='dashboard-chart-bar'><div class='dashboard-chart-fill' id='dashboard-chart-fill'></div></div><div class='dashboard-note'>Live Data</div>`;
+    }
+    // 5. Note/Sticky
+    function getNoteHTML() {
+      return `<div class='dashboard-title'>Note</div><div class='dashboard-note'>Stay focused and keep it simple.</div>`;
+    }
+    // 6. Quick Links
+    function getLinksHTML() {
+      return `<div class='dashboard-title'>Quick Links</div><div><a href='https://github.com/' target='_blank'>GitHub</a> | <a href='https://dribbble.com/' target='_blank'>Dribbble</a></div>`;
+    }
+    const faceContents = {
+      front: `<div class='face-content'>${getClockHTML()}</div>`,
+      back: `<div class='face-content'>${getWeatherHTML()}</div>`,
+      right: `<div class='face-content'>${getMusicHTML()}</div>`,
+      left: `<div class='face-content'>${getChartHTML()}</div>`,
+      top: `<div class='face-content'>${getNoteHTML()}</div>`,
+      bottom: `<div class='face-content'>${getLinksHTML()}</div>`
+    };
+    cube.setFaces(faceContents);
+    // --- Clock Live Update ---
+    function updateClock() {
+      const el = document.getElementById('dashboard-clock');
+      if (el) {
+        const now = new Date();
+        el.textContent = now.toLocaleTimeString();
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    // --- Music Button Demo ---
+    setTimeout(() => {
+      const btn = document.getElementById('music-play-btn');
+      if (btn) {
+        let playing = false;
+        btn.addEventListener('click', () => {
+          playing = !playing;
+          gsap.to(btn, { scale: 1.12, background: playing ? '#ff5fa2' : 'rgba(255,255,255,0.95)', color: playing ? '#fff' : '#ff5fa2', borderColor: playing ? '#00eaff' : '#ff5fa2', duration: 0.2, yoyo: true, repeat: 1 });
+          btn.textContent = playing ? 'Pause' : 'Play';
+        });
+      }
+    }, 500);
+    // --- Chart Live Update ---
+    setInterval(() => {
+      const fill = document.getElementById('dashboard-chart-fill');
+      if (fill) {
+        const percent = Math.floor(Math.random() * 80) + 10;
+        fill.style.width = percent + '%';
+      }
+    }, 1500);
+  </script>
+</body>
+</html> 

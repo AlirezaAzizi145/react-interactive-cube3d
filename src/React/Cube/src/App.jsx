@@ -121,20 +121,21 @@ function App() {
       <Cube3D
         size={300}
         autoRotate={true}
-        rotationSpeed={0.3}
+        rotationSpeed={2}
+        borderRadius={22}
         interactive={true}
         faces={videoFaces}
         className="main-cube"
       />
-      <Cube3D
+      {/* <Cube3D
         size={300}
         autoRotate={true}
-        rotationSpeed={0.1}
+        rotationSpeed={2}
         interactive={true}
         faces={dashboardFaces}
         className="dashboard-cube"
         style={{ marginLeft: '50px' }}
-      />
+      /> */}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import './Cube3D.css';
 
@@ -20,136 +20,134 @@ const Cube3D = ({
 }) => {
   const containerRef = useRef(null);
   const cubeRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [currentRotation, setCurrentRotation] = useState({ x: 15, y: 45, z: 0 });
-  const [previousMouse, setPreviousMouse] = useState({ x: 0, y: 0 });
-  const [velocity, setVelocity] = useState({ x: 0, y: 0 });
-  const [lastTime, setLastTime] = useState(0);
-  const [autoRotationPaused, setAutoRotationPaused] = useState(false);
-  const currentRotationRef = useRef({ x: 15, y: 45, z: 0 });
-  const timelineRef = useRef(null);
-
-  const ROTATION_SPEED = 0.3;
-  const INERTIA_FACTOR = 0.95;
-
-  const normalizeRotation = (angle) => {
-    return angle % 360;
-  };
-
-  const updateCubeRotation = () => {
-    gsap.set(cubeRef.current, {
-      rotateX: currentRotationRef.current.x,
-      rotateY: currentRotationRef.current.y
-    });
-  };
-
-  const startAutoRotation = () => {
-    timelineRef.current = gsap.timeline({ repeat: -1 });
-    timelineRef.current.to({}, {
-      duration: 15 / rotationSpeed,
-      ease: "none",
-      onUpdate: function() {
-        if (!autoRotationPaused) {
-          currentRotationRef.current.y += (360 / (15 / rotationSpeed)) / 60; // 360 degrees over duration
-          currentRotationRef.current.x += (180 / (15 / rotationSpeed)) / 60; // 180 degrees over duration
-          updateCubeRotation();
-        }
-      }
-    });
-  };
+  const rotationRef = useRef({ x: 15, y: 45 });
+  const isDraggingRef = useRef(false);
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const velocityRef = useRef({ x: 0, y: 0 });
+  const animationFrameRef = useRef(null);
 
   useEffect(() => {
-    // Set initial rotation without animation
-    if (cubeRef.current) {
-      gsap.set(cubeRef.current, {
-        rotateX: currentRotationRef.current.x,
-        rotateY: currentRotationRef.current.y
-      });
-    }
-    
+    const container = containerRef.current;
+    const cube = cubeRef.current;
+    if (!container || !cube) return;
+
+    // Set initial rotation
+    gsap.set(cube, {
+      rotateX: rotationRef.current.x,
+      rotateY: rotationRef.current.y
+    });
+
+    // Auto rotation with setInterval for consistent timing
     if (autoRotate) {
-      startAutoRotation();
+      const animate = () => {
+        if (!isDraggingRef.current) {
+          rotationRef.current.y += 0.5 * rotationSpeed;
+          rotationRef.current.x += 0.3 * rotationSpeed;
+          gsap.set(cube, {
+            rotateX: rotationRef.current.x,
+            rotateY: rotationRef.current.y
+          });
+        }
+      };
+      animationFrameRef.current = setInterval(animate, 16); // ~60fps
     }
 
+    // Mouse/Touch handlers
+    const handlePointerDown = (e) => {
+      if (!interactive) return;
+      
+      isDraggingRef.current = true;
+      velocityRef.current = { x: 0, y: 0 };
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      mouseRef.current = { x: clientX, y: clientY };
+
+      // Add move and up listeners only when dragging starts
+      window.addEventListener('mousemove', handlePointerMove);
+      window.addEventListener('touchmove', handlePointerMove);
+      window.addEventListener('mouseup', handlePointerUp);
+      window.addEventListener('touchend', handlePointerUp);
+
+      e.preventDefault();
+    };
+
+    const handlePointerMove = (e) => {
+      if (!isDraggingRef.current || !interactive) return;
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = clientX - mouseRef.current.x;
+      const deltaY = clientY - mouseRef.current.y;
+
+      // Direct rotation update
+      rotationRef.current.y += deltaX * 0.5;
+      rotationRef.current.x -= deltaY * 0.5;
+
+      gsap.set(cube, {
+        rotateX: rotationRef.current.x,
+        rotateY: rotationRef.current.y
+      });
+
+      // Store velocity for inertia
+      velocityRef.current = { x: deltaX * 0.1, y: -deltaY * 0.1 };
+
+      mouseRef.current = { x: clientX, y: clientY };
+      e.preventDefault();
+    };
+
+    const handlePointerUp = () => {
+      if (!interactive) return;
+      
+      isDraggingRef.current = false;
+
+      // Remove move and up listeners when dragging ends
+      window.removeEventListener('mousemove', handlePointerMove);
+      window.removeEventListener('touchmove', handlePointerMove);
+      window.removeEventListener('mouseup', handlePointerUp);
+      window.removeEventListener('touchend', handlePointerUp);
+
+      // Apply inertia
+      const applyInertia = () => {
+        if (Math.abs(velocityRef.current.x) > 0.1 || Math.abs(velocityRef.current.y) > 0.1) {
+          rotationRef.current.y += velocityRef.current.x;
+          rotationRef.current.x += velocityRef.current.y;
+
+          gsap.set(cube, {
+            rotateX: rotationRef.current.x,
+            rotateY: rotationRef.current.y
+          });
+
+          velocityRef.current.x *= 0.95;
+          velocityRef.current.y *= 0.95;
+
+          requestAnimationFrame(applyInertia);
+        }
+      };
+
+      requestAnimationFrame(applyInertia);
+    };
+
+    // Add event listeners
+    container.addEventListener('mousedown', handlePointerDown);
+    container.addEventListener('touchstart', handlePointerDown);
+
+    // Cleanup
     return () => {
-      if (timelineRef.current) {
-        timelineRef.current.kill();
+      if (animationFrameRef.current) {
+        clearInterval(animationFrameRef.current);
       }
+      
+      container.removeEventListener('mousedown', handlePointerDown);
+      container.removeEventListener('touchstart', handlePointerDown);
+      // Remove any remaining listeners
+      window.removeEventListener('mousemove', handlePointerMove);
+      window.removeEventListener('touchmove', handlePointerMove);
+      window.removeEventListener('mouseup', handlePointerUp);
+      window.removeEventListener('touchend', handlePointerUp);
     };
-  }, [autoRotate, rotationSpeed]);
-
-  const handleStart = (e) => {
-    if (!interactive) return;
-    setIsDragging(true);
-    setAutoRotationPaused(true);
-    
-    // Pause the timeline completely during drag
-    if (timelineRef.current) {
-      timelineRef.current.pause();
-    }
-    
-    setLastTime(performance.now());
-    setVelocity({ x: 0, y: 0 });
-
-    const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
-    setPreviousMouse({ x: clientX, y: clientY });
-    e.preventDefault();
-  };
-
-  const handleMove = (e) => {
-    if (!isDragging || !interactive) return;
-
-    const currentTime = performance.now();
-    const deltaTime = currentTime - lastTime;
-    setLastTime(currentTime);
-
-    const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
-
-    const deltaX = clientX - previousMouse.x;
-    const deltaY = clientY - previousMouse.y;
-
-    const newVelocityX = (deltaX * ROTATION_SPEED) / deltaTime;
-    const newVelocityY = (deltaY * ROTATION_SPEED) / deltaTime;
-
-    setVelocity({ x: newVelocityX, y: newVelocityY });
-    
-    currentRotationRef.current.y += newVelocityX * deltaTime;
-    currentRotationRef.current.x -= newVelocityY * deltaTime;
-
-    updateCubeRotation();
-    setPreviousMouse({ x: clientX, y: clientY });
-    e.preventDefault();
-  };
-
-  const handleEnd = () => {
-    if (!interactive) return;
-    setIsDragging(false);
-    setAutoRotationPaused(false);
-    
-    // Resume the timeline after drag ends
-    if (timelineRef.current) {
-      timelineRef.current.play();
-    }
-
-    const applyInertia = () => {
-      if (Math.abs(velocity.x) > 0.001 || Math.abs(velocity.y) > 0.001) {
-        currentRotationRef.current.y += velocity.x;
-        currentRotationRef.current.x -= velocity.y;
-
-        setVelocity(prev => ({
-          x: prev.x * INERTIA_FACTOR,
-          y: prev.y * INERTIA_FACTOR
-        }));
-
-        updateCubeRotation();
-        requestAnimationFrame(applyInertia);
-      }
-    };
-
-    requestAnimationFrame(applyInertia);
-  };
+  }, [autoRotate, interactive, rotationSpeed]);
 
   const renderFaceContent = (face, content) => {
     switch (content.type) {
@@ -197,13 +195,6 @@ const Cube3D = ({
         perspective: '1000px',
         ...style
       }}
-      onMouseDown={handleStart}
-      onMouseMove={handleMove}
-      onMouseUp={handleEnd}
-      onMouseLeave={handleEnd}
-      onTouchStart={handleStart}
-      onTouchMove={handleMove}
-      onTouchEnd={handleEnd}
     >
       <div
         ref={cubeRef}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Cube Example</title>
+  <link rel="stylesheet" href="cube.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="cube.js"></script>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0a0a0a, #1a0033, #000033);
+      font-family: Arial, sans-serif;
+    }
+
+    .face-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="cube-container"></div>
+
+  <script>
+    // Create cube instance
+    const cube = new Cube3D(document.getElementById('cube-container'), {
+      size: 300,
+      autoRotate: true
+    });
+
+    // Set all faces with different images
+    const faceImages = {
+      front: 'https://images.pexels.com/photos/2825033/pexels-photo-2825033.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      back: 'https://images.pexels.com/photos/8721342/pexels-photo-8721342.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      right: 'https://images.pexels.com/photos/2091399/pexels-photo-2091399.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      left: 'https://images.pexels.com/photos/6153743/pexels-photo-6153743.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      top: 'https://images.pexels.com/photos/6153752/pexels-photo-6153752.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      bottom: 'https://images.pexels.com/photos/6940332/pexels-photo-6940332.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    };
+
+    // Function to create image element with proper styling
+    const createImageFace = (url) => `
+      <div class="face-content">
+        <img src="${url}" alt="Cube face" onerror="this.src='https://via.placeholder.com/300x300/1a0033/ffffff?text=Loading...'">
+      </div>
+    `;
+
+    // Convert URLs to proper HTML content
+    const faceContents = Object.fromEntries(
+      Object.entries(faceImages).map(([face, url]) => [face, createImageFace(url)])
+    );
+
+    // Set all faces with images
+    cube.setFaces(faceContents);
+
+    // Example of how to change a single face image
+    // cube.setFace('front', 'https://picsum.photos/300/300?random=7');
+  </script>
+</body>
+</html> 
