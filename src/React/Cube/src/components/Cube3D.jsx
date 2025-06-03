@@ -1,12 +1,24 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import './Cube3D.css';
 
 const Cube3D = ({
   size = 300,
+  responsive = false,
+  minSize = 150,
+  maxSize = 600,
   autoRotate = false,
   rotationSpeed = 0.5,
   interactive = true,
+  interactiveEffects = false,
+  effectColors = {
+    front: '#00ffff',  // Cyan
+    back: '#ff00ff',   // Magenta
+    right: '#ffff00',  // Yellow
+    left: '#ff8800',   // Orange
+    top: '#88ff00',    // Lime
+    bottom: '#ff0088'  // Pink
+  },
   faces = {
     front: { type: 'empty' },
     back: { type: 'empty' },
@@ -25,6 +37,42 @@ const Cube3D = ({
   const mouseRef = useRef({ x: 0, y: 0 });
   const velocityRef = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef(null);
+  const [cubeSize, setCubeSize] = useState(size);
+
+  // Responsive sizing effect
+  useEffect(() => {
+    if (!responsive) {
+      setCubeSize(size);
+      return;
+    }
+
+    const updateSize = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
+      
+      // Use 70% of the smaller dimension to ensure cube fits well
+      const availableSize = Math.min(containerWidth, containerHeight) * 0.7;
+      
+      // Clamp between min and max sizes
+      const newSize = Math.max(minSize, Math.min(maxSize, availableSize));
+      
+      setCubeSize(newSize);
+    };
+
+    // Initial size calculation
+    updateSize();
+
+    // Add resize listener
+    window.addEventListener('resize', updateSize);
+    
+    return () => {
+      window.removeEventListener('resize', updateSize);
+    };
+  }, [responsive, size, minSize, maxSize]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -64,10 +112,16 @@ const Cube3D = ({
       mouseRef.current = { x: clientX, y: clientY };
 
       // Add move and up listeners only when dragging starts
-      window.addEventListener('mousemove', handlePointerMove);
-      window.addEventListener('touchmove', handlePointerMove);
-      window.addEventListener('mouseup', handlePointerUp);
-      window.addEventListener('touchend', handlePointerUp);
+      if (e.touches) {
+        // Touch events - use passive: false for touchmove to allow preventDefault
+        window.addEventListener('touchmove', handlePointerMove, { passive: false });
+        window.addEventListener('touchend', handlePointerUp);
+        window.addEventListener('touchcancel', handlePointerUp);
+      } else {
+        // Mouse events
+        window.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerUp);
+      }
 
       e.preventDefault();
     };
@@ -75,8 +129,15 @@ const Cube3D = ({
     const handlePointerMove = (e) => {
       if (!isDraggingRef.current || !interactive) return;
 
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      // Handle both touch and mouse events
+      let clientX, clientY;
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
 
       const deltaX = clientX - mouseRef.current.x;
       const deltaY = clientY - mouseRef.current.y;
@@ -94,19 +155,23 @@ const Cube3D = ({
       velocityRef.current = { x: deltaX * 0.1, y: -deltaY * 0.1 };
 
       mouseRef.current = { x: clientX, y: clientY };
+      
+      // Prevent scrolling and default behavior
       e.preventDefault();
+      e.stopPropagation();
     };
 
-    const handlePointerUp = () => {
+    const handlePointerUp = (e) => {
       if (!interactive) return;
       
       isDraggingRef.current = false;
 
-      // Remove move and up listeners when dragging ends
+      // Remove all listeners
       window.removeEventListener('mousemove', handlePointerMove);
-      window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('mouseup', handlePointerUp);
+      window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
+      window.removeEventListener('touchcancel', handlePointerUp);
 
       // Apply inertia
       const applyInertia = () => {
@@ -129,9 +194,9 @@ const Cube3D = ({
       requestAnimationFrame(applyInertia);
     };
 
-    // Add event listeners
+    // Add event listeners with proper options
     container.addEventListener('mousedown', handlePointerDown);
-    container.addEventListener('touchstart', handlePointerDown);
+    container.addEventListener('touchstart', handlePointerDown, { passive: false });
 
     // Cleanup
     return () => {
@@ -141,13 +206,112 @@ const Cube3D = ({
       
       container.removeEventListener('mousedown', handlePointerDown);
       container.removeEventListener('touchstart', handlePointerDown);
-      // Remove any remaining listeners
+      // Remove any remaining listeners from window
       window.removeEventListener('mousemove', handlePointerMove);
-      window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('mouseup', handlePointerUp);
+      window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
+      window.removeEventListener('touchcancel', handlePointerUp);
     };
   }, [autoRotate, interactive, rotationSpeed]);
+
+  // Interactive Effects
+  useEffect(() => {
+    if (!interactiveEffects) return;
+
+    const faces = document.querySelectorAll('.cube-face');
+    
+    const handleFaceHover = (e) => {
+      const face = e.currentTarget;
+      const lightEffect = face.querySelector('.light-effect');
+      const faceType = face.className.split('--')[1]; // Get face type (front, back, etc.)
+      const faceColor = effectColors[faceType];
+      
+      if (lightEffect) {
+        gsap.to(lightEffect, {
+          opacity: 0.6,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      }
+      
+      // Add glow effect to face with dynamic color
+      gsap.to(face, {
+        boxShadow: `0 0 32px 8px ${faceColor}88, 0 0 16px 4px ${faceColor}88`,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    };
+
+    const handleFaceLeave = (e) => {
+      const face = e.currentTarget;
+      const lightEffect = face.querySelector('.light-effect');
+      
+      if (lightEffect) {
+        gsap.to(lightEffect, {
+          opacity: 0,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+      }
+      
+      // Remove glow effect
+      gsap.to(face, {
+        boxShadow: '0 0 20px rgba(0, 0, 0, 0.1)',
+        duration: 0.5,
+        ease: 'power2.out'
+      });
+    };
+
+    const handleFaceClick = (e) => {
+      const face = e.currentTarget;
+      const faceType = face.className.split('--')[1];
+      const faceColor = effectColors[faceType];
+      
+      // Bounce effect
+      gsap.fromTo(face, 
+        { scale: 1 },
+        { 
+          scale: 1.1,
+          duration: 0.2,
+          ease: 'power2.out',
+          yoyo: true,
+          repeat: 1
+        }
+      );
+      
+      // Light flash effect with dynamic color
+      const lightEffect = face.querySelector('.light-effect');
+      if (lightEffect) {
+        gsap.fromTo(lightEffect, 
+          { opacity: 0 },
+          { 
+            opacity: 1,
+            duration: 0.1,
+            ease: 'power2.out',
+            yoyo: true,
+            repeat: 1
+          }
+        );
+      }
+    };
+
+    // Add event listeners to all faces
+    faces.forEach(face => {
+      face.addEventListener('mouseenter', handleFaceHover);
+      face.addEventListener('mouseleave', handleFaceLeave);
+      face.addEventListener('click', handleFaceClick);
+    });
+
+    // Cleanup
+    return () => {
+      faces.forEach(face => {
+        face.removeEventListener('mouseenter', handleFaceHover);
+        face.removeEventListener('mouseleave', handleFaceLeave);
+        face.removeEventListener('click', handleFaceClick);
+      });
+    };
+  }, [interactiveEffects, effectColors]);
 
   const renderFaceContent = (face, content) => {
     switch (content.type) {
@@ -200,9 +364,9 @@ const Cube3D = ({
         ref={cubeRef}
         className="cube"
         style={{
-          width: size,
-          height: size,
-          transform: `translateZ(-${size/2}px)`,
+          width: cubeSize,
+          height: cubeSize,
+          transform: `translateZ(-${cubeSize/2}px)`,
           transformStyle: 'preserve-3d'
         }}
       >
@@ -211,12 +375,15 @@ const Cube3D = ({
             key={face}
             className={`cube-face cube-face--${face}`}
             style={{
-              width: size,
-              height: size,
-              transform: getFaceTransform(face, size)
+              width: cubeSize,
+              height: cubeSize,
+              transform: getFaceTransform(face, cubeSize)
             }}
           >
             {renderFaceContent(face, content)}
+            {interactiveEffects && (
+              <div className="light-effect"></div>
+            )}
           </div>
         ))}
       </div>

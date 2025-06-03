@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Cube3D from './components/Cube3D';
 import './App.css';
+import './components/cubeFaces.css';
 
 function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -118,7 +119,7 @@ function App() {
 
   return (
     <div className="app">
-      <Cube3D
+      {/* <Cube3D
         size={300}
         autoRotate={true}
         rotationSpeed={2}
@@ -127,15 +128,56 @@ function App() {
         faces={videoFaces}
         className="main-cube"
       />
-      {/* <Cube3D
+      <Cube3D
         size={300}
+        responsive={true}
+        minSize={200}
+        maxSize={300}
         autoRotate={true}
         rotationSpeed={2}
         interactive={true}
+        interactiveEffects={true}
         faces={dashboardFaces}
         className="dashboard-cube"
         style={{ marginLeft: '50px' }}
       /> */}
+      <Cube3D
+        size={300}
+        autoRotate={true}
+        rotationSpeed={1.2}
+        interactiveEffects={true}
+        interactive={true}
+        faces={{
+          front: {
+            type: 'image',
+            src: 'https://images.pexels.com/photos/2825033/pexels-photo-2825033.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+          },
+          back: {
+            type: 'image',
+            src: 'https://images.pexels.com/photos/8721342/pexels-photo-8721342.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+          },
+          right: {
+            type: 'image',
+            src: 'https://images.pexels.com/photos/2091399/pexels-photo-2091399.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+          },
+          left: {
+            type: 'image',
+            src: 'https://images.pexels.com/photos/6153743/pexels-photo-6153743.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+          },
+          top: {
+            type: 'image',
+            src: 'https://images.pexels.com/photos/6153752/pexels-photo-6153752.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+          },
+          bottom: {
+            type: 'image',
+            src: 'https://images.pexels.com/photos/6940332/pexels-photo-6940332.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+          }
+        }}
+        className="image-cube"
+        style={{ marginLeft: '50px' }}
+
+        
+      />
     </div>
   );
 }
