@@ -1,0 +1,1 @@
+export { default as Cube3D } from './components/Cube3D.jsx'; 
