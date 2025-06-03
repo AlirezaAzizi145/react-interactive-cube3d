@@ -15,11 +15,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/react-interactive-cube3d.git"
+    "url": "https://github.com/AlirezaAzizi145/react-interactive-cube3d.git"
   },
-  "homepage": "https://github.com/YOUR_USERNAME/react-interactive-cube3d#readme",
+  "homepage": "https://github.com/AlirezaAzizi145/react-interactive-cube3d#readme",
   "bugs": {
-    "url": "https://github.com/YOUR_USERNAME/react-interactive-cube3d/issues"
+    "url": "https://github.com/AlirezaAzizi145/react-interactive-cube3d/issues"
   },
   "keywords": [
     "react",
@@ -33,7 +33,7 @@
     "ui",
     "frontend"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "Alireza Azizi <alirezaazizi145@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
     "react": ">=16.8.0",
