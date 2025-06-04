@@ -402,10 +402,8 @@ cube.destroy();
 
 Check out the live examples in this repository:
 
-- **[Basic Example](./packages/vanilla-package/index.html)** - Simple cube with images
-- **[Dashboard Example](https://codesandbox.io/p/sandbox/65s9d9)** - Dashboard-style with live data
-- **[Interactive Example](./packages/vanilla-package/interactive.html)** - Advanced interactive effects
-- **[Video Example](./packages/vanilla-package/video.html)** - Video content demonstration
+- **[Examples](https://codesandbox.io/p/sandbox/65s9d9)** - Cubes Example
+
 
 ## 🛠️ Development
 
