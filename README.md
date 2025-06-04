@@ -7,6 +7,8 @@
 
 A modern, interactive 3D cube component available for both **React** and **vanilla HTML/CSS/JS**. Create stunning 3D cubes with video, image, and HTML content on each face, complete with smooth animations, interactive controls, and customizable effects.
 
+![Cube Demo](https://raw.githubusercontent.com/AlirezaAzizi145/react-interactive-cube3d/main/src/Cube.gif)
+
 ## ✨ Features
 
 - 🎥 **Multi-content support** - Video, image, and HTML content on each face
